@@ -9,7 +9,8 @@ import {
     Portal,
     Provider as PaperProvider,
     Text,
-    TextInput
+    TextInput,
+    TouchableRipple,
 } from 'react-native-paper';
 import {useRouter} from 'expo-router';
 import {ThemedView} from '@/components/ThemedView';
@@ -83,15 +84,21 @@ const TodosScreen = () => {
                         data={todos}
                         keyExtractor={(item) => item._id}
                         renderItem={({item}) => (
-                            <Card style={styles.card} elevation={3} onPress={() => router.push(`../todo/${item._id}`)}>
-                                <Card.Content>
-                                    <Text variant="titleMedium">{item.title}</Text>
-                                    <Text variant="bodyMedium" style={styles.description}>{item.description}</Text>
-                                </Card.Content>
-                                <Card.Actions>
-                                    <Button onPress={() => handleDeleteTodo(item._id)}>Delete</Button>
-                                </Card.Actions>
-                            </Card>
+                            <TouchableRipple
+                                onPress={() => router.push(`../todo/${item._id}`)}
+                                rippleColor="rgba(0, 0, 0, .32)"
+                                style={styles.cardWrapper}
+                            >
+                                <Card style={styles.card} mode="elevated">
+                                    <Card.Content>
+                                        <Text variant="titleMedium">{item.title}</Text>
+                                        <Text variant="bodyMedium" style={styles.description}>{item.description}</Text>
+                                    </Card.Content>
+                                    <Card.Actions>
+                                        <Button onPress={() => handleDeleteTodo(item._id)}>Delete</Button>
+                                    </Card.Actions>
+                                </Card>
+                            </TouchableRipple>
                         )}
                         contentContainerStyle={styles.listContainer}
                     />
@@ -138,8 +145,11 @@ const styles = StyleSheet.create({
     listContainer: {
         padding: 16,
     },
-    card: {
+    cardWrapper: {
         marginBottom: 16,
+        borderRadius: 8,
+    },
+    card: {
         borderRadius: 8,
     },
     description: {

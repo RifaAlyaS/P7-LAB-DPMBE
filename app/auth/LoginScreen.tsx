@@ -1,52 +1,49 @@
-import React, {useState} from "react";
-import {Image, StyleSheet, Text, TextInput, TouchableOpacity} from "react-native";
-import {useRouter} from "expo-router";
+
+import React, { useState } from "react";
+import { View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Alert } from "react-native";
+import { useRouter } from "expo-router";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {ThemedView} from "@/components/ThemedView";
-import {Button, Dialog, PaperProvider, Portal} from "react-native-paper";
+import { LinearGradient } from "expo-linear-gradient";
+import { ThemedView } from "@/components/ThemedView";
 import API_URL from "../../config/config";
 
 export default function LoginScreen() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [dialogVisible, setDialogVisible] = useState(false);
-    const [dialogMessage, setDialogMessage] = useState("");
-    const [isSuccess, setIsSuccess] = useState(false);
     const router = useRouter();
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post(`${API_URL}/api/auth/login`, { username, password });
+            const response = await axios.post(`${API_URL}/api/auth/login`, {
+                username,
+                password,
+            });
             const { token } = response.data.data;
             await AsyncStorage.setItem("token", token);
-            setDialogMessage("Login successful!");
-            setIsSuccess(true);
-            setDialogVisible(true);
+            router.replace("/(tabs)"); // Prevent back navigation to login
         } catch (error) {
             const errorMessage = (error as any).response?.data?.message || "An error occurred";
-            setDialogMessage(errorMessage);
-            setIsSuccess(false);
-            setDialogVisible(true);
-        }
-    };
-
-    const handleDialogDismiss = () => {
-        setDialogVisible(false);
-        if (isSuccess) {
-            router.replace("/(tabs)");
+            Alert.alert("Login Failed", errorMessage);
         }
     };
 
     return (
-        <PaperProvider>
-            <ThemedView style={styles.container}>
-                <Image source={require("../../assets/images/icon.png")} style={styles.logo} />
+        <LinearGradient
+            colors={["rgb(0, 0, 0)", "rgba(255, 255, 255, 0.2)"]}
+            style={styles.container}
+        >
+            <View style={styles.contentContainer}>
+                <Image
+                    source={require("../../assets/images/burning.png")}
+                    style={styles.logo}
+                />
                 <Text style={styles.title}>Welcome Back!</Text>
                 <Text style={styles.subtitle}>Log in to continue</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Username"
+                    placeholderTextColor="white"
                     value={username}
                     onChangeText={setUsername}
                     autoCapitalize="none"
@@ -54,29 +51,25 @@ export default function LoginScreen() {
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
+                    placeholderTextColor="white"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
                 />
-                <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                <TouchableOpacity
+                    style={styles.loginButton}
+                    onPress={handleLogin}
+                >
                     <Text style={styles.loginButtonText}>Login</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.registerButton} onPress={() => router.push("/auth/RegisterScreen")}>
+                <TouchableOpacity
+                    style={styles.registerButton}
+                    onPress={() => router.push("/auth/RegisterScreen")}
+                >
                     <Text style={styles.registerButtonText}>Register</Text>
                 </TouchableOpacity>
-                <Portal>
-                    <Dialog visible={dialogVisible} onDismiss={handleDialogDismiss}>
-                        <Dialog.Title>{isSuccess ? "Success" : "Login Failed"}</Dialog.Title>
-                        <Dialog.Content>
-                            <Text>{dialogMessage}</Text>
-                        </Dialog.Content>
-                        <Dialog.Actions>
-                            <Button onPress={handleDialogDismiss}>OK</Button>
-                        </Dialog.Actions>
-                    </Dialog>
-                </Portal>
-            </ThemedView>
-        </PaperProvider>
+            </View>
+        </LinearGradient>
     );
 }
 
@@ -85,61 +78,83 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+    },
+    contentContainer: {
+        width: "90%",
+        alignItems: "center",
         padding: 16,
-        backgroundColor: "#f9f9f9",
+        borderRadius: 16,
+        backgroundColor: "rgba(170, 170, 170, 0.2)",
+        shadowColor: "#000",
+        shadowOffset: { width: 20, height: 15 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
     },
     logo: {
-        width: 150,
-        height: 150,
-        marginBottom: 24,
+        width: 120,
+        height: 120,
+        borderRadius: 100,
+        marginBottom: 16,
         resizeMode: "contain",
     },
     title: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: "bold",
         marginBottom: 8,
-        color: "#333",
+        color: "white",
+        textAlign: "center",
     },
     subtitle: {
         fontSize: 16,
         marginBottom: 24,
-        color: "#666",
+        color: "white",
+        textAlign: "center",
     },
     input: {
         width: "100%",
         height: 48,
-        borderColor: "#ccc",
+        borderColor: "#ffffff",
         borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 12,
+        borderRadius: 24,
+        paddingHorizontal: 16,
         marginBottom: 16,
-        backgroundColor: "#fff",
+        backgroundColor: "rgba(255, 255, 255, 0.4)",
+        fontSize: 16,
+        color: "black",
     },
     loginButton: {
         width: "100%",
         height: 48,
-        backgroundColor: "#007BFF",
-        borderRadius: 8,
+        borderRadius: 10,
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "rgba(46, 0, 0, 0.62)",
+        borderWidth: 1,
+        borderColor: "#ffffff",
         marginBottom: 16,
+        shadowColor: "#ffffff",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+
     },
     loginButtonText: {
-        color: "#fff",
+        color: "white",
         fontSize: 16,
         fontWeight: "600",
     },
     registerButton: {
         width: "100%",
         height: 48,
-        borderWidth: 1,
-        borderColor: "#007BFF",
-        borderRadius: 8,
+        borderRadius: 10,
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "rgba(168, 0, 0, 0.62)",
+        borderWidth: 1,
+        borderColor: "#ffffff",
     },
     registerButtonText: {
-        color: "#007BFF",
+        color: "white",
         fontSize: 16,
         fontWeight: "600",
     },

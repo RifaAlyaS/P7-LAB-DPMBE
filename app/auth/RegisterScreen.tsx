@@ -1,38 +1,46 @@
-import React, {useState} from "react";
-import {StyleSheet, Text, TextInput, TouchableOpacity} from "react-native";
-import {useRouter} from "expo-router";
+import React, { useState } from "react";
+import { View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Alert } from "react-native";
+import { useRouter } from "expo-router";
 import axios from "axios";
-import {ThemedView} from "@/components/ThemedView";
-import {Button, Dialog, PaperProvider, Portal} from "react-native-paper";
+import { LinearGradient } from "expo-linear-gradient";
 import API_URL from "../../config/config";
 
 export default function RegisterScreen() {
     const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
-    const [dialogVisible, setDialogVisible] = useState(false);
-    const [dialogMessage, setDialogMessage] = useState("");
+    const [password, setPassword] = useState("");
     const router = useRouter();
 
     const handleRegister = async () => {
         try {
-            await axios.post(`${API_URL}/api/auth/register`, {username, password, email});
+            await axios.post(`${API_URL}/api/auth/register`, {
+                username,
+                email,
+                password,
+            });
             router.replace("/auth/LoginScreen");
         } catch (error) {
             const errorMessage = (error as any).response?.data?.message || "An error occurred";
-            setDialogMessage(errorMessage);
-            setDialogVisible(true);
+            Alert.alert("Registration Failed", errorMessage);
         }
     };
 
     return (
-        <PaperProvider>
-            <ThemedView style={styles.container}>
+        <LinearGradient
+            colors={["rgb(0, 0, 0)", "rgba(255, 255, 255, 0.2)"]}
+            style={styles.container}
+        >
+            <View style={styles.contentContainer}>
+                <Image
+                    source={require("../../assets/images/burning.png")}
+                    style={styles.logo}
+                />
                 <Text style={styles.title}>Create an Account</Text>
                 <Text style={styles.subtitle}>Join us and get started</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Username"
+                    placeholderTextColor="white"
                     value={username}
                     onChangeText={setUsername}
                     autoCapitalize="none"
@@ -40,6 +48,7 @@ export default function RegisterScreen() {
                 <TextInput
                     style={styles.input}
                     placeholder="Email"
+                    placeholderTextColor="white"
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
@@ -48,29 +57,25 @@ export default function RegisterScreen() {
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
+                    placeholderTextColor="white"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
                 />
-                <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+                <TouchableOpacity
+                    style={styles.registerButton}
+                    onPress={handleRegister}
+                >
                     <Text style={styles.registerButtonText}>Register</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.loginButton} onPress={() => router.push("/auth/LoginScreen")}>
+                <TouchableOpacity
+                    style={styles.loginButton}
+                    onPress={() => router.push("/auth/LoginScreen")}
+                >
                     <Text style={styles.loginButtonText}>Login</Text>
                 </TouchableOpacity>
-                <Portal>
-                    <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
-                        <Dialog.Title>Registration Failed</Dialog.Title>
-                        <Dialog.Content>
-                            <Text>{dialogMessage}</Text>
-                        </Dialog.Content>
-                        <Dialog.Actions>
-                            <Button onPress={() => setDialogVisible(false)}>OK</Button>
-                        </Dialog.Actions>
-                    </Dialog>
-                </Portal>
-            </ThemedView>
-        </PaperProvider>
+            </View>
+        </LinearGradient>
     );
 }
 
@@ -79,55 +84,82 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+    },
+    contentContainer: {
+        width: "90%",
+        alignItems: "center",
         padding: 16,
-        backgroundColor: "#f9f9f9",
+        borderRadius: 16,
+        backgroundColor: "rgba(0, 0, 0, 0.2)",
+        shadowColor: "#000",
+        shadowOffset: { width: 20, height: 15 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+    },
+    logo: {
+        width: 120,
+        height: 120,
+        borderRadius: 100,
+        marginBottom: 16,
+        resizeMode: "contain",
     },
     title: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: "bold",
-        marginBottom: 24,
-        color: "#333",
+        marginBottom: 8,
+        color: "white",
+        textAlign: "center",
     },
     subtitle: {
         fontSize: 16,
-        color: "#666",
         marginBottom: 24,
+        color: "white",
+        textAlign: "center",
     },
     input: {
         width: "100%",
         height: 48,
-        borderColor: "#ccc",
+        borderColor: "#ffffff",
         borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 12,
+        borderRadius: 24,
+        paddingHorizontal: 16,
         marginBottom: 16,
-        backgroundColor: "#fff",
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+        fontSize: 16,
+        color: "white",
     },
     registerButton: {
         width: "100%",
         height: 48,
-        backgroundColor: "#007BFF",
-        borderRadius: 8,
+        borderRadius: 10,
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "rgba(46, 0, 0, 0.62)",
+        borderWidth: 1,
+        borderColor: "#ffffff",
         marginBottom: 16,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
     },
     registerButtonText: {
-        color: "#fff",
+        color: "white",
         fontSize: 16,
         fontWeight: "600",
     },
     loginButton: {
         width: "100%",
         height: 48,
-        borderWidth: 1,
-        borderColor: "#007BFF",
-        borderRadius: 8,
+        borderRadius: 10,
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "rgba(168, 0, 0, 0.62)",
+        borderWidth: 1,
+        borderColor: "#ffffff",
     },
     loginButtonText: {
-        color: "#007BFF",
+        color: "white",
         fontSize: 16,
         fontWeight: "600",
     },
